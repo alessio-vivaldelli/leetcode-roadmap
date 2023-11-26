@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeetCode roadmap</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 70%;
+            margin: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>LeetCode roadmap</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <!-- <th>Link</th> -->
+                <th>Note</th>
+                <th>Checkbox</th>
+            </tr>
+        </thead>
+        <tbody>
+            <script>
+                // Funzione per eseguire la richiesta HTTP per ottenere i dati JSON
+                function caricaDati(callback) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.overrideMimeType("application/json");
+                    xhr.open('GET', 'dati.json', true);
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+                            callback(JSON.parse(xhr.responseText));
+                        }
+                    };
+                    xhr.send(null);
+                }
+
+                // Funzione per aggiungere righe alla tabella
+                function aggiungiRiga(numero, voce, link, note, id) {
+                    var tbody = document.querySelector('tbody');
+                    var row = tbody.insertRow();
+                    var cellNumero = row.insertCell(0);
+                    var cellVoce = row.insertCell(1);
+                    //var cellLink = row.insertCell(2);
+                    var cellNote = row.insertCell(2);
+                    var cellCheckbox = row.insertCell(3);
+
+                    cellNumero.textContent = numero;
+                    // Include il link direttamente nella voce
+                    cellVoce.innerHTML = '<a href="' + link + '" target="_blank">' + voce + '</a>';
+                    // Aggiungi un campo di testo per le note
+                    cellNote.innerHTML = '<input type="text" id="note_' + id + '" value="' + note + '">';
+                    cellCheckbox.innerHTML = '<input type="checkbox" id="checkbox_' + id + '" ' + (localStorage.getItem('checkbox_' + id) === 'checked' ? 'checked' : '') + '>';
+                }
+
+                // Carica i dati e aggiungi le righe alla tabella
+                caricaDati(function (dati) {
+                    for (var i = 0; i < dati.length; i++) {
+                        aggiungiRiga(i + 1, dati[i].name, dati[i].link, dati[i].note, i + 1);
+                    }
+
+                    // Aggiungi un gestore di eventi per le checkbox
+                    document.querySelectorAll('input[type="checkbox"]').forEach(function (checkbox) {
+                        checkbox.addEventListener('change', function () {
+                            // Salva lo stato della checkbox nel localStorage quando viene modificato
+                            localStorage.setItem(checkbox.id, checkbox.checked ? 'checked' : 'unchecked');
+                        });
+
+                        // Ripristina lo stato della checkbox dalla localStorage al caricamento della pagina
+                        var savedState = localStorage.getItem(checkbox.id);
+                        if (savedState === 'checked') {
+                            checkbox.checked = true;
+                        }
+                    });
+
+                    // Aggiungi un gestore di eventi per i campi di testo delle note
+                    document.querySelectorAll('input[type="text"]').forEach(function (input) {
+                        input.addEventListener('input', function () {
+                            // Salva il valore del campo di testo nel localStorage quando viene modificato
+                            localStorage.setItem(input.id, input.value);
+                        });
+
+                        // Ripristina il valore del campo di testo dalla localStorage al caricamento della pagina
+                        var savedValue = localStorage.getItem(input.id);
+                        if (savedValue !== null) {
+                            input.value = savedValue;
+                        } else {
+                            input.value = "";
+                        }
+                    });
+                });
+            </script>
+        </tbody>
+    </table>
+
+</body>
+</html>
